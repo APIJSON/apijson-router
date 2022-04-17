@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2022 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,33 +60,20 @@ public class APIJSONRouterApplication extends APIJSONApplication {
 		System.out.println("\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<< APIJSON Router 开始启动 >>>>>>>>>>>>>>>>>>>>>>>>\n");
 
 
-		//		System.out.println("\n\n\n开始初始化: Document 请求映射配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		//		try {
-		//			APIJSONRouterVerifier.initDocument(shutdownWhenServerError, creator);
-		//		}
-		//		catch (Throwable e) {
-		//			e.printStackTrace();
-		//			if (shutdownWhenServerError) {
-		//				onServerError("Document 请求映射配置 初始化失败！", shutdownWhenServerError);
-		//			}
-		//		}
-		//		System.out.println("\n完成初始化: Document 请求映射配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		//
-		//		System.out.println("\n\n\n开始测试: Document 请求映射配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		//		try {
-		//			APIJSONRouterVerifier.testDocument();
-		//		}
-		//		catch (Throwable e) {
-		//			e.printStackTrace();
-		//			if (shutdownWhenServerError) {
-		//				onServerError("Document 请求映射配置 测试失败！", shutdownWhenServerError);
-		//			}
-		//		}
-		//		System.out.println("\n完成测试: Document 请求映射配置>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("\n\n\n开始初始化: Document 请求映射配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+		try {
+			APIJSONRouterVerifier.initDocument(shutdownWhenServerError, creator);
+		}
+		catch (Throwable e) {
+			e.printStackTrace();
+			if (shutdownWhenServerError) {
+				onServerError("Document 请求映射配置 初始化失败！", shutdownWhenServerError);
+			}
+		}
+		System.out.println("\n完成初始化: Document 请求映射配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-
-		System.out.println("插件地址： https://github.com/APIJSON/apijson-router");
-		System.out.println("\n\n<<<<<<<<<<<<<<<<<<<<<<<<< APIJSON Router 启动完成，试试调用自动化 API 吧 ^_^ >>>>>>>>>>>>>>>>>>>>>>>>\n");
+		System.out.println("\n插件地址： https://github.com/APIJSON/apijson-router");
+		System.out.println("\n\n<<<<<<<<<<<<<<<<<<<<<<<<< APIJSON Router 启动完成，试试调用类 RESTful API 吧 ^_^ >>>>>>>>>>>>>>>>>>>>>>>>\n");
 	}
 
 }

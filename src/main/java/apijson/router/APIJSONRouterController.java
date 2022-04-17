@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2022 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.*/
 package apijson.router;
 
 import static apijson.RequestMethod.GET;
+import static apijson.framework.APIJSONConstant.METHODS;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,7 +38,6 @@ import apijson.framework.APIJSONConstant;
 import apijson.framework.APIJSONController;
 import apijson.framework.APIJSONCreator;
 import apijson.framework.APIJSONParser;
-import apijson.orm.AbstractParser;
 import apijson.orm.AbstractVerifier;
 import apijson.orm.Parser;
 import apijson.orm.SQLConfig;
@@ -45,34 +45,15 @@ import apijson.orm.Verifier;
 
 
 /**APIJSON router controller，建议在子项目被 @RestController 注解的类继承它或通过它的实例调用相关方法
- * <br > 全通过 HTTP POST 来请求:
- * <br > 1.减少代码 - 客户端无需写 HTTP GET, HTTP PUT 等各种方式的请求代码
- * <br > 2.提高性能 - 无需 URL encode 和 decode
- * <br > 3.调试方便 - 建议使用 APIAuto-机器学习自动化接口管理工具(https://github.com/TommyLemon/APIAuto)
  * @author Lemon
  */
 public class APIJSONRouterController extends APIJSONController {
 	public static final String TAG = "APIJSONRouterController";
 
-	public String parseByTag(RequestMethod method, String tag, Map<String, String> params, String request, HttpSession session) {
-
-		JSONObject req = AbstractParser.wrapRequest(method, tag, JSON.parseObject(request), false);
-		if (req == null) {
-			req = new JSONObject(true);
-		}
-		if (params != null && params.isEmpty() == false) {
-			req.putAll(params);
-		}
-
-		return newParser(session, method).parse(req);
-	}
-
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-	// method-tag, <version, Document>
-	Map<String, SortedMap<Integer, JSONObject>> DOCUMENT_MAP = new HashMap<>();
-
-	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	/**增删改查统一的类 RESTful API 入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	 * compatCommonAPI = Log.DEBUG
 	 * @param method
 	 * @param tag
 	 * @param params
@@ -81,16 +62,30 @@ public class APIJSONRouterController extends APIJSONController {
 	 * @return
 	 */
 	public String router(String method, String tag, Map<String, String> params, String request, HttpSession session) {
-		if (StringUtil.isName(tag) == false) {
-			return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method}/{tag} 中 tag 值 " + tag
-					+ " 错误！只允许变量命名格式！")).toJSONString();
+		return router(method, tag, params, request, session, Log.DEBUG);
+	}
+	/**增删改查统一的类 RESTful API 入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	 * @param method
+	 * @param tag
+	 * @param params
+	 * @param request
+	 * @param session
+	 * @param compatCommonAPI 兼容万能通用 API，当没有映射 apijson 时，自动转到万能通用 API
+	 * @return
+	 */
+	public String router(String method, String tag, Map<String, String> params, String request, HttpSession session, boolean compatCommonAPI) {
+		if (METHODS.contains(method) == false) {
+			return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 " + method
+					+ " 错误！只允许 " + METHODS + " 中的一个！")).toJSONString();
 		}
-		if (APIJSON_METHODS.contains(method) == false) {
-			return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method}/" + tag + " 中 method 值 " + method
-					+ " 错误！只允许 " + APIJSON_METHODS + " 中的一个！")).toJSONString();
+		
+		String t = compatCommonAPI && tag != null && tag.endsWith("[]") ? tag.substring(0, tag.length() - 2) : tag;
+		if (StringUtil.isName(t) == false) {
+			return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /" + method + "/{tag} 的 tag 中 " + t
+					+ " 错误！tag 不能为空，且只允许变量命名格式！")).toJSONString();
 		}
 
-		String versionStr = params == null ? null : params.get(APIJSONConstant.VERSION);
+		String versionStr = params == null ? null : params.remove(APIJSONConstant.VERSION);
 		Integer version;
 		try {
 			version = StringUtil.isEmpty(versionStr, false) ? null : Integer.valueOf(versionStr);
@@ -107,7 +102,7 @@ public class APIJSONRouterController extends APIJSONController {
 		try {
 			// 从 Document 查这样的接口		
 			String cacheKey = AbstractVerifier.getCacheKeyForRequest(method, tag);
-			SortedMap<Integer, JSONObject> versionedMap = DOCUMENT_MAP.get(cacheKey);
+			SortedMap<Integer, JSONObject> versionedMap = APIJSONRouterVerifier.DOCUMENT_MAP.get(cacheKey);
 
 			JSONObject result = versionedMap == null ? null : versionedMap.get(version);
 			if (result == null) {  // version <= 0 时使用最新，version > 0 时使用 > version 的最接近版本（最小版本）
@@ -144,12 +139,12 @@ public class APIJSONRouterController extends APIJSONController {
 					}
 
 					versionedMap.put(version, result);
-					DOCUMENT_MAP.put(cacheKey, versionedMap);
+					APIJSONRouterVerifier.DOCUMENT_MAP.put(cacheKey, versionedMap);
 				}
 			}
 
 			APIJSONCreator creator = APIJSONParser.APIJSON_CREATOR;
-			if (result == null && Log.DEBUG && DOCUMENT_MAP.isEmpty()) {
+			if (result == null && Log.DEBUG && APIJSONRouterVerifier.DOCUMENT_MAP.isEmpty()) {
 
 				//获取指定的JSON结构 <<<<<<<<<<<<<<
 				SQLConfig config = creator.createSQLConfig().setMethod(GET).setTable(APIJSONConstant.DOCUMENT_);
@@ -176,12 +171,22 @@ public class APIJSONRouterController extends APIJSONController {
 			}
 
 			String apijson = result == null ? null : result.getString("apijson");
-			if (StringUtil.isEmpty(apijson, true)) {
+			if (StringUtil.isEmpty(apijson, true)) {  //
+				if (compatCommonAPI) {
+					return crudByTag(method, tag, params, request, session);
+				}
+
 				throw new IllegalArgumentException("URL 路径 /" + method
 						+ "/" + tag + (versionStr == null ? "" : "?version=" + versionStr) + " 对应的接口不存在！");
 			}
 
 			JSONObject rawReq = JSON.parseObject(request);
+			if (rawReq == null) {
+				rawReq = new JSONObject(true);
+			}
+			if (params != null && params.isEmpty() == false) {
+				rawReq.putAll(params);
+			}
 
 			RequestMethod requestMethod = RequestMethod.valueOf(method.toUpperCase());
 			Parser<Long> parser = newParser(session, requestMethod);
@@ -208,7 +213,7 @@ public class APIJSONRouterController extends APIJSONController {
 				apijsonReq = new JSONObject(true);
 			}
 
-			Set<Entry<String, Object>> rawSet = rawReq == null ? null : rawReq.entrySet();
+			Set<Entry<String, Object>> rawSet = rawReq.entrySet();
 			if (rawSet != null && rawSet.isEmpty() == false) {
 				for (Entry<String, Object> entry : rawSet) {
 					String key = entry == null ? null : entry.getKey();
@@ -233,40 +238,13 @@ public class APIJSONRouterController extends APIJSONController {
 				}
 			}
 
-			//没必要，已经是预设好的实际参数了，如果要 tag 就在 apijson 字段配置  apijsonReq.put(JSONRequest.KEY_TAG, tag);
+			// 没必要，已经是预设好的实际参数了，如果要 tag 就在 apijson 字段配置  apijsonReq.put(JSONRequest.KEY_TAG, tag);
 
 			return parser.setNeedVerifyContent(false).parse(apijsonReq);
 		}
 		catch (Exception e) {
 			return APIJSONParser.newErrorResult(e).toJSONString();
 		}
-	}
-
-	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
-	 * @param method
-	 * @param tag
-	 * @param params
-	 * @param request
-	 * @param session
-	 * @return
-	 */
-	public String rest(String method, String request, HttpSession session) {
-		if (APIJSON_METHODS.contains(method)) {
-			return parse(RequestMethod.valueOf(method.toUpperCase()), request, session);
-		}
-
-		return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method} 中 method 值 " + method
-				+ " 错误！只允许 " + APIJSON_METHODS + " 中的一个！")).toJSONString();
-	}
-
-	/**获取
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#GET}
-	 */
-	public String get(String request, HttpSession session) {
-		return parse(GET, request, session);
 	}
 
 
