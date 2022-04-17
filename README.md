@@ -58,9 +58,20 @@ A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+
 
 ## 初始化
 ## Initialization
-见 [ColumnUtil](/src/main/java/apijson/router/APIJSONRouterController.java) 的注释及 [APIJSONBoot](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot) 的 [DemoController](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoController.java) <br />
 
-See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONRouterController.java) and [DemoController](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoController.java) in [APIJSONBoot](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot)
+#### 1.新增一个 @RestController class DemoController extends APIJSONRouterController  <br />
+#### 1.Add a @RestController class DemoController extends APIJSONRouterController  <br />
+
+#### 2.在 DemoController 重写 router 方法，加上注解 @PostMapping("router/{method}/{tag}")  <br />
+#### 2.Override router in DemoController, and add @PostMapping("router/{method}/{tag}") for router method  <br />
+
+#### 3.在 DemoApplication.main 方法内，APIJSONAppication.init 后调用 APIJSONRouterApplication.init <br />
+#### 3.In DemoApplication.main, call APIJSONRouterApplication.init after APIJSONAppication.init <br />
+
+
+参考 [APIJSONRouterController](/src/main/java/apijson/router/APIJSONRouterController.java) 的注释及 [APIJSONBoot](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot) 的 [DemoController](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoController.java) 和 [DemoApplication](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoApplication.java) <br />
+
+See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONRouterController.java) and [DemoController](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoController.java), [DemoApplication](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoApplication.java)  in [APIJSONBoot](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot)
 
 <br />
 <br />
@@ -74,12 +85,12 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 
 name: 查询动态列表
 
-url: /get/moments  // 必须以 /get/, /head/, /gets/, /heads/, /post/, /put/, /delete/ 其中之一开头，对应 APIJSON 的万能通用 API
+url: /get/moments  // 必须以 APIJSON 的万能通用 API 之一的路由开头，例如 /get/, /post/ 等
 
 request:
 ```js
 {
-	"format": true,  // 替换以下 "format": false
+    "format": true,  // 替换以下 "format": false
     "Moment[].count": 3,  // 以 . 分割路径中的 key，替换以下  "Moment[]": { "count": 3 }
     "Moment[].page": 1  // 以 . 分割路径中的 key，替换以下  "Moment[]": { "page": 1 }
 }
@@ -88,7 +99,7 @@ request:
 apijson:
 ```js
 {
-	"foramt": false,
+    "foramt": false,
     "Moment[]": {
         "Moment": {
             "@order": "date-"
@@ -117,8 +128,9 @@ tag: moments
 structure:
 ```js
 {
-    "MUST": "Moment[].count,Moment[].page",
+    "MUST": "foramt,Moment[].count,Moment[].page",
     "TYPE": {
+        "foramt": "BOOLEAN",
         "Moment[].page": "NUMBER",
         "Moment[].count": "NUMBER"
     },
@@ -135,10 +147,10 @@ structure:
 POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字符串
 ```js
 {
-   "showKey0": val0,
-   "showKey1.a1": val1,
-   "showKe2.a2.b2": val2
-   ...
+    "showKey0": val0,
+    "showKey1.a1": val1,
+    "showKe2.a2.b2": val2
+    ...
 }
 ```
 
@@ -147,7 +159,7 @@ POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字
 POST http://localhost:8080/router/get/moments  // Document 表配置的 url 为 /get/moments
 ```js
 {
-	"format": true,
+    "format": true,
     "Moment[].count": 3,
     "Moment[].page": 1
 }
@@ -159,7 +171,7 @@ POST http://localhost:8080/router/get/moments  // Document 表配置的 url 为 
 最后内部映射为： <br />
 ```js
 {
-	"format": true,
+    "format": true,
     "Moment[]": {
         "Moment": {
             "@order": "date-"
