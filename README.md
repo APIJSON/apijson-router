@@ -59,14 +59,20 @@ A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+
 ## 初始化
 ## Initialization
 
-#### 1.新增一个 @RestController class DemoController extends APIJSONRouterController  <br />
-#### 1.Add a @RestController class DemoController extends APIJSONRouterController  <br />
+#### 1.新增一个 @RestController class DemoController extends APIJSONRouterController
+#### 1.Add a @RestController class DemoController extends APIJSONRouterController
 
-#### 2.在 DemoController 重写 router 方法，加上注解 @PostMapping("router/{method}/{tag}")  <br />
-#### 2.Override router in DemoController, and add @PostMapping("router/{method}/{tag}") for router method  <br />
+<br />
 
-#### 3.在 DemoApplication.main 方法内，APIJSONAppication.init 后调用 APIJSONRouterApplication.init <br />
-#### 3.In DemoApplication.main, call APIJSONRouterApplication.init after APIJSONAppication.init <br />
+#### 2.在 DemoController 重写 router 方法，加上注解 @PostMapping("router/{method}/{tag}")
+#### 2.Override router in DemoController, and add @PostMapping("router/{method}/{tag}") for router method
+
+<br />
+
+#### 3.在 DemoApplication.main 方法内，APIJSONAppication.init 后调用 APIJSONRouterApplication.init
+#### 3.In DemoApplication.main, call APIJSONRouterApplication.init after APIJSONAppication.init
+
+<br />
 
 
 参考 [APIJSONRouterController](/src/main/java/apijson/router/APIJSONRouterController.java) 的注释及 [APIJSONBoot](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot) 的 [DemoController](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoController.java) 和 [DemoApplication](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/demo/DemoApplication.java) <br />
