@@ -155,7 +155,7 @@ POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字
 {
     "showKey0": val0,
     "showKey1.a1": val1,
-    "showKe2.a2.b2": val2
+    "showKey2.a2.b2": val2
     ...
 }
 ```
