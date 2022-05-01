@@ -46,7 +46,7 @@ public class APIJSONRouterApplication extends APIJSONApplication {
 	 * @return 
 	 * @throws Exception
 	 */
-	public static void init(@NotNull APIJSONCreator creator) throws Exception {
+	public static <T extends Object> void init(@NotNull APIJSONCreator<T> creator) throws Exception {
 		init(true, creator);
 	}
 	/**初始化，加载所有配置并校验
@@ -55,7 +55,7 @@ public class APIJSONRouterApplication extends APIJSONApplication {
 	 * @return 
 	 * @throws Exception
 	 */
-	public static void init(boolean shutdownWhenServerError, @NotNull APIJSONCreator creator) throws Exception {
+	public static <T extends Object> void init(boolean shutdownWhenServerError, @NotNull APIJSONCreator<T> creator) throws Exception {
 		//	避免多个插件重复调用这句	APIJSONApplication.init(shutdownWhenServerError, creator);
 		System.out.println("\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<< APIJSON Router 开始启动 >>>>>>>>>>>>>>>>>>>>>>>>\n");
 

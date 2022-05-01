@@ -47,12 +47,12 @@ import apijson.orm.Verifier;
 /**APIJSON router controller，建议在子项目被 @RestController 注解的类继承它或通过它的实例调用相关方法
  * @author Lemon
  */
-public class APIJSONRouterController extends APIJSONController {
+public class APIJSONRouterController<T extends Object> extends APIJSONController<T> {
 	public static final String TAG = "APIJSONRouterController";
 
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-	/**增删改查统一的类 RESTful API 入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	/**增删改查统一的类 RESTful API 入口，牺牲一些路由解析性能来提升一点开发效率
 	 * compatCommonAPI = Log.DEBUG
 	 * @param method
 	 * @param tag
@@ -64,13 +64,13 @@ public class APIJSONRouterController extends APIJSONController {
 	public String router(String method, String tag, Map<String, String> params, String request, HttpSession session) {
 		return router(method, tag, params, request, session, Log.DEBUG);
 	}
-	/**增删改查统一的类 RESTful API 入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	/**增删改查统一的类 RESTful API 入口，牺牲一些路由解析性能来提升一点开发效率
 	 * @param method
 	 * @param tag
 	 * @param params
 	 * @param request
 	 * @param session
-	 * @param compatCommonAPI 兼容万能通用 API，当没有映射 apijson 时，自动转到万能通用 API
+	 * @param compatCommonAPI 兼容万能通用 API，当没有映射 APIJSON 格式请求时，自动转到万能通用 API
 	 * @return
 	 */
 	public String router(String method, String tag, Map<String, String> params, String request, HttpSession session, boolean compatCommonAPI) {
@@ -143,7 +143,8 @@ public class APIJSONRouterController extends APIJSONController {
 				}
 			}
 
-			APIJSONCreator creator = APIJSONParser.APIJSON_CREATOR;
+			@SuppressWarnings("unchecked")
+			APIJSONCreator<T> creator = (APIJSONCreator<T>) APIJSONParser.APIJSON_CREATOR;
 			if (result == null && Log.DEBUG && APIJSONRouterVerifier.DOCUMENT_MAP.isEmpty()) {
 
 				//获取指定的JSON结构 <<<<<<<<<<<<<<
@@ -189,10 +190,10 @@ public class APIJSONRouterController extends APIJSONController {
 			}
 
 			RequestMethod requestMethod = RequestMethod.valueOf(method.toUpperCase());
-			Parser<Long> parser = newParser(session, requestMethod);
+			Parser<T> parser = newParser(session, requestMethod);
 
 			if (parser.isNeedVerifyContent()) {
-				Verifier<Long> verifier = creator.createVerifier();
+				Verifier<T> verifier = creator.createVerifier();
 
 				//获取指定的JSON结构 <<<<<<<<<<<<
 				JSONObject object;

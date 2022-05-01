@@ -38,10 +38,10 @@ import apijson.framework.APIJSONVerifier;
 import apijson.orm.JSONRequest;
 
 
-/**路由权限验证器
+/**路由请求映射验证器
  * @author Lemon
  */
-public class APIJSONRouterVerifier extends APIJSONVerifier {
+public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> {
 	public static final String TAG = "APIJSONRouterVerifier";
 
 
@@ -51,14 +51,14 @@ public class APIJSONRouterVerifier extends APIJSONVerifier {
 		DOCUMENT_MAP = new HashMap<>();
 	}
 
-	/**初始化，加载所有权限配置和请求校验配置
+	/**初始化，加载所有请求映射配置和请求校验配置
 	 * @return 
 	 * @throws ServerException
 	 */
 	public static JSONObject init() throws ServerException {
 		return init(false);
 	}
-	/**初始化，加载所有权限配置和请求校验配置
+	/**初始化，加载所有请求映射配置和请求校验配置
 	 * @param shutdownWhenServerError 
 	 * @return 
 	 * @throws ServerException
@@ -66,21 +66,21 @@ public class APIJSONRouterVerifier extends APIJSONVerifier {
 	public static JSONObject init(boolean shutdownWhenServerError) throws ServerException {
 		return init(shutdownWhenServerError, null);
 	}
-	/**初始化，加载所有权限配置和请求校验配置
+	/**初始化，加载所有请求映射配置和请求校验配置
 	 * @param creator 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(APIJSONCreator creator) throws ServerException {
+	public static <T extends Object> JSONObject init(APIJSONCreator<T> creator) throws ServerException {
 		return init(false, creator);
 	}
-	/**初始化，加载所有权限配置和请求校验配置
+	/**初始化，加载所有请求映射配置和请求校验配置
 	 * @param shutdownWhenServerError 
 	 * @param creator 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+	public static <T extends Object> JSONObject init(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		JSONObject result = APIJSONVerifier.init(shutdownWhenServerError, creator);
 		result.put(DOCUMENT_, initDocument(shutdownWhenServerError, creator));
 		return result;
@@ -107,7 +107,7 @@ public class APIJSONRouterVerifier extends APIJSONVerifier {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initDocument(APIJSONCreator creator) throws ServerException {
+	public static <T extends Object> JSONObject initDocument(APIJSONCreator<T> creator) throws ServerException {
 		return initDocument(false, creator);
 	}
 	/**初始化，加载所有请求校验配置
@@ -116,7 +116,7 @@ public class APIJSONRouterVerifier extends APIJSONVerifier {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initDocument(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+	public static <T extends Object> JSONObject initDocument(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		return initDocument(shutdownWhenServerError, creator, null);
 	}
 	/**初始化，加载所有请求校验配置
@@ -126,9 +126,10 @@ public class APIJSONRouterVerifier extends APIJSONVerifier {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initDocument(boolean shutdownWhenServerError, APIJSONCreator creator, JSONObject table) throws ServerException {
+	@SuppressWarnings("unchecked")
+	public static <T extends Object> JSONObject initDocument(boolean shutdownWhenServerError, APIJSONCreator<T> creator, JSONObject table) throws ServerException {
 		if (creator == null) {
-			creator = APIJSON_CREATOR;
+			creator = (APIJSONCreator<T>) APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
@@ -144,15 +145,15 @@ public class APIJSONRouterVerifier extends APIJSONVerifier {
 
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
-			Log.e(TAG, "\n\n\n\n\n !!!! 查询权限配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
-			onServerError("查询权限配置异常 !", shutdownWhenServerError);
+			Log.e(TAG, "\n\n\n\n\n !!!! 查询请求映射配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
+			onServerError("查询请求映射配置异常 !", shutdownWhenServerError);
 		}
 
 		JSONArray list = response.getJSONArray(DOCUMENT_ + "[]");
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
-			Log.w(TAG, "initDocument isAll && size <= 0，没有可用的权限配置");
-			throw new NullPointerException("没有可用的权限配置");
+			Log.w(TAG, "initDocument isAll && size <= 0，没有可用的请求映射配置");
+			throw new NullPointerException("没有可用的请求映射配置");
 		}
 
 		Log.d(TAG, "initDocument < for DOCUMENT_MAP.size() = " + DOCUMENT_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
