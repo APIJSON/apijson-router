@@ -33,6 +33,7 @@ import apijson.JSONResponse;
 import apijson.Log;
 import apijson.RequestMethod;
 import apijson.StringUtil;
+import apijson.framework.APIJSONConstant;
 import apijson.framework.APIJSONCreator;
 import apijson.framework.APIJSONVerifier;
 import apijson.orm.JSONRequest;
@@ -135,9 +136,13 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 
 
 		boolean isAll = table == null || table.isEmpty();
+		JSONObject document = isAll ? new JSONRequest().puts("apijson{}", "length(apijson)>0").setOrder("version-,id+") : table;
+		if (Log.DEBUG == false) {
+			document.put(APIJSONConstant.KEY_DEBUG, 0);
+		}
 
 		JSONRequest requestItem = new JSONRequest();
-		requestItem.put(DOCUMENT_, isAll ? new JSONRequest().puts("apijson{}", "length(apijson)>0").setOrder("version-,id+") : table);  // 方便查找
+		requestItem.put(DOCUMENT_, document );  // 方便查找
 
 		JSONRequest request = new JSONRequest();
 		request.putAll(requestItem.toArray(0, 0, DOCUMENT_));
