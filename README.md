@@ -188,8 +188,8 @@ Eg <br />
 POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置的 url
 ```js
 {
-    "Moment[].page": 1,
-    "Moment[].count": 3,
+    "Moment[].page": 0,
+    "Moment[].count": 5,
     "format": false
 }
 ```
@@ -203,8 +203,8 @@ Finally it will be mapped to： <br />
 ```js
 {
     "Moment[]": {
-        "page": 1,
-        "count": 3,
+        "page": 0,
+        "count": 5,
         "Moment": {
             "@order": "date-"
         }
