@@ -91,7 +91,7 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 
 name: 查询动态列表
 
-url: /router/get/momentList  // 最后两个 key 必须以 APIJSON 的万能通用 API 之一的路由开头，例如 /get/, /post/ 等
+url: /router/get/momentList  // 最后两个 key 必须以 APIJSON 的万能通用 API 之一的路由开头，例如 get, post 等
 
 request:
 ```js
@@ -131,7 +131,7 @@ apijson:
 
 method: GET
 
-tag: moments
+tag: momentList
 
 structure:
 ```js
