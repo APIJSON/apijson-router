@@ -189,11 +189,8 @@ POST http://localhost:8080/router/get/moments  // Document 表配置的 url 为 
 ```
 
 执行完 APIJSON 格式的请求后返回对应结果。
+![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
-
-
-注意：[APIAuto](https://github.com/TommyLemon/APIAuto) 不能自动获取并展示对应映射字段 showKey 的类型、长度、注释等文档，只能通过手写注释来实现 <br />
-Note: [APIAuto](https://github.com/TommyLemon/APIAuto) cannot automatically get and show the document for the showKey, you can add comment manually. 
 
 <br /><br />
 
