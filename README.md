@@ -85,19 +85,29 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 
 ## 使用
 ## Usage
-### 1.配置 Document 请求映射
+
+#### 以下步骤 1, 2 可改为直接在 APIAuto 参数注入面板点击 \[+ 添加] 按钮，再点击弹窗内 \[发布简单接口] 按钮来自动完成
+#### Instead of step 1 and 2, you can use APIAuto for complete them automatically: Click \[+ Add], then Click \[Release simple API]
+
+![image](https://user-images.githubusercontent.com/5738175/166562199-4d96dd16-cf25-4bd4-b574-94a3c5f32685.png)
+
+<br />
+
+### 1.在 Document 表配置请求映射
+### 1.Add mapping rule in table Document
 
 例如 <br />
+Eg <br />
 
 name: 查询动态列表
 
-url: /router/get/momentList  // 最后两个 key 必须以 APIJSON 的万能通用 API 之一的路由开头，例如 get, post 等
+url: /router/get/momentList  // 最后必须为 /{method}/{tag} 格式：method 必须为万能通用路由名；tag 不能为 Table 或 Table\[] 格式
 
 request:
 ```js
 {
-    "Moment[].page": 0,  // 以 . 分割路径中的 key，映射以下  "Moment[]": { "page": 0 }
-    "Moment[].count": 10,  // 以 . 分割路径中的 key，映射以下  "Moment[]": { "count": 10 }
+    "Moment[].page": 0,  // 以 . 分割路径中的 key，映射以下 "Moment[]": { "page": 0 }
+    "Moment[].count": 10,  // 以 . 分割路径中的 key，映射以下 "Moment[]": { "count": 10 }
     "format": false  // 映射以下 "format": false
 }
 ```
@@ -116,18 +126,24 @@ apijson:
 }
 ```
 
-其它字段可不填，用默认值
+其它字段可不填，用默认值<br />
+Other columns can use default value<br />
 
 ![image](https://user-images.githubusercontent.com/5738175/166565083-1db03cde-8b59-4048-af6d-78d9efb78f7c.png)
 
 <br />
 
-### 2.配置 Request 表校验规则
-如果不需要校验参数则可跳过。 <br />
+### 2.在 Request 表配置校验规则
+### 2.Add validation rule in table Request
 
-和普通的 APIJSON 格式请求基本一致，只是不会自动根据符合表名的 tag 来对 structure 包装一层 "Table": structure
+如果不需要校验参数则可跳过。 <br />
+This step can be ignored if validation is not needed. <br />
+ 
+和普通的 APIJSON 格式请求基本一致，只是不会自动根据符合表名的 tag 来对 structure 包装一层 "Table": structure <br />
+The same as common APIJSON requests, but won't wrap structure with tag to "Table": structure <br />
 
 例如 <br />
+Eg <br />
 
 method: GET
 
@@ -150,15 +166,11 @@ structure:
 
 <br />
 
-#### 步骤 1, 2 都可在 APIAuto 参数注入面板点击 \[+ 添加] 按钮，再点击弹窗内 \[发布简单接口] 按钮来自动完成
-
-![image](https://user-images.githubusercontent.com/5738175/166562199-4d96dd16-cf25-4bd4-b574-94a3c5f32685.png)
-
-<br />
-
-### 3.测试类 RESTful API
+### 3.测试已配置的类 RESTful 简单接口
+### 3.Test configured RESTful-like API
 
 启动项目后用 APIAuto/Postman 等 HTTP 接口测试工具发起请求 <br />
+After run project and the server has started, you can use HTTP tools like APIAuto/Postman to send request <br />
 
 POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字符串
 ```js
@@ -171,6 +183,7 @@ POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字
 ```
 
 例如 <br />
+Eg <br />
 
 POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置的 url
 ```js
@@ -182,9 +195,11 @@ POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置�
 ```
 
 如果 parser.isNeedVerifyContent，则会经过 Request 表校验规则来校验， <br />
-
+If parser.isNeedVerifyContent, it will be validated with the rule in table Request <br />
 
 最后内部映射为： <br />
+Finally it will be mapped to： <br />
+
 ```js
 {
     "Moment[]": {
@@ -198,7 +213,8 @@ POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置�
 }
 ```
 
-执行完 APIJSON 格式的请求后返回对应结果
+执行完 APIJSON 格式的请求后返回对应结果 <br />
+Server will execute and response <br />
 
 ![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
