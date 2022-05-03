@@ -54,7 +54,6 @@ A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+
 
 <br />
 <br />
-<br />
 
 ## 初始化
 ## Initialization
@@ -79,7 +78,6 @@ A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+
 
 See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONRouterController.java) and [DemoController](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/boot/DemoController.java), [DemoApplication](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot/src/main/java/apijson/boot/DemoApplication.java)  in [APIJSONBoot](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot)
 
-<br />
 <br />
 <br />
 
@@ -118,7 +116,7 @@ apijson:
 
 其它字段可不填，用默认值。
 
-<br /><br />
+<br />
 
 ### 2.配置 Request 表校验规则
 如果不需要校验参数则可跳过。 <br />
@@ -144,7 +142,13 @@ structure:
 }
 ```
 
-<br /><br />
+<br />
+
+步骤 1, 2 都可在 APIAuto 参数注入面板点击 **+** 添加按钮，再点击弹窗内 **发布简单接口** 按钮来自动完成
+
+![image](https://user-images.githubusercontent.com/5738175/166562199-4d96dd16-cf25-4bd4-b574-94a3c5f32685.png)
+
+<br />
 
 ### 3.测试类 RESTful API
 
@@ -188,7 +192,8 @@ POST http://localhost:8080/router/get/moments  // Document 表配置的 url 为 
 }
 ```
 
-执行完 APIJSON 格式的请求后返回对应结果。
+执行完 APIJSON 格式的请求后返回对应结果
+
 ![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
 
