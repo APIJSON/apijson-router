@@ -1,6 +1,8 @@
 # apijson-router  [![](https://jitpack.io/v/APIJSON/apijson-router.svg)](https://jitpack.io/#APIJSON/apijson-router)
-腾讯 [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+ 的路由插件，对外暴露类 RESTful 简单接口，内部转成 APIJSON 格式请求来执行。<br />
-A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+, expose RESTful-like HTTP API, transfer to APIJSON request and execute.
+腾讯 [APIJSON](https://github.com/Tencent/APIJSON) 5.1.0+ 的路由插件，对外暴露类 RESTful 简单接口，内部转成 APIJSON 格式请求来执行。<br />
+A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.1.0+, expose RESTful-like HTTP API, map to APIJSON request and execute.
+
+![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
 ## 添加依赖
 ## Add Dependency
@@ -54,7 +56,6 @@ A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+
 
 <br />
 <br />
-<br />
 
 ## 初始化
 ## Initialization
@@ -81,74 +82,95 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 
 <br />
 <br />
-<br />
 
 ## 使用
 ## Usage
-### 1.配置 Document 请求映射
+
+#### 以下步骤 1, 2 可改为直接在 APIAuto 参数注入面板点击 \[+ 添加] 按钮，再点击弹窗内 \[发布简单接口] 按钮来自动完成
+#### Instead of step 1 and 2, you can use APIAuto to complete them automatically: Click \[+ Add], then Click \[Release simple API]
+
+![image](https://user-images.githubusercontent.com/5738175/166562199-4d96dd16-cf25-4bd4-b574-94a3c5f32685.png)
+
+<br />
+
+### 1.在 Document 表配置请求映射
+### 1.Add mapping rule in table Document
 
 例如 <br />
+Eg <br />
 
 name: 查询动态列表
 
-url: /get/moments  // 必须以 APIJSON 的万能通用 API 之一的路由开头，例如 /get/, /post/ 等
+url: /router/get/momentList  // 最后必须为 /{method}/{tag} 格式：method 必须为万能通用路由名；tag 不能为 Table 或 Table\[] 格式
 
 request:
 ```js
 {
-    "format": true,  // 替换以下 "format": false
-    "Moment[].count": 3,  // 以 . 分割路径中的 key，替换以下  "Moment[]": { "count": 3 }
-    "Moment[].page": 1  // 以 . 分割路径中的 key，替换以下  "Moment[]": { "page": 1 }
+    "Moment[].page": 0,  // 以 . 分割路径中的 key，映射以下 "Moment[]": { "page": 0 }
+    "Moment[].count": 10,  // 以 . 分割路径中的 key，映射以下 "Moment[]": { "count": 10 }
+    "format": false  // 映射以下 "format": false
 }
 ```
 
 apijson:
 ```js
 {
-    "foramt": false,
     "Moment[]": {
-        "Moment": {
-            "@order": "date-"
-        },
         "page": 0,
-        "count": 5
-    }
+        "count": 10,
+        "Moment": {
+            "@column": "id,userId,date"
+        }
+    },
+    "format": false
 }
 ```
 
-其它字段可不填，用默认值。
+其它字段可不填，用默认值<br />
+Other columns can use default value<br />
 
-<br /><br />
+![image](https://user-images.githubusercontent.com/5738175/166565083-1db03cde-8b59-4048-af6d-78d9efb78f7c.png)
 
-### 2.配置 Request 表校验规则
+<br />
+
+### 2.在 Request 表配置校验规则
+### 2.Add validation rule in table Request
+
 如果不需要校验参数则可跳过。 <br />
-
-和普通的 APIJSON 格式请求基本一致，只是不会自动根据符合表名的 tag 来对 structure 包装一层 "Table": structure
+This step can be ignored if validation is not needed. <br />
+ 
+和普通的 APIJSON 格式请求基本一致，只是不会自动根据符合表名的 tag 来对 structure 包装一层 "Table": structure <br />
+The same as common APIJSON requests, but won't wrap structure with tag to "Table": structure <br />
 
 例如 <br />
+Eg <br />
 
 method: GET
 
-tag: moments
+tag: momentList
 
 structure:
 ```js
 {
-    "MUST": "foramt,Moment[].count,Moment[].page",
+    "MUST": "Moment[].page",  // 必传 Moment[].page
+    "REFUSE": "!Moment[].count,!format,!",  // 不禁传 Moment[].count 和 format，禁传 MUST 之外的其它所有 key
     "TYPE": {
-        "foramt": "BOOLEAN",
-        "Moment[].page": "NUMBER",
-        "Moment[].count": "NUMBER"
-    },
-    "REFUSE": "!"
+        "format": "BOOLEAN",  // format 类型必须是布尔 Boolean
+        "Moment[].page": "NUMBER",  // Moment[].page 类型必须是整数 Integer
+        "Moment[].count": "NUMBER"  // Moment[].count 类型必须是整数 Integer
+    }
 }
 ```
 
-<br /><br />
+![image](https://user-images.githubusercontent.com/5738175/166563592-e8d3f09f-471a-4ae1-bee9-de78ec16fefe.png)
 
-### 3.测试类 RESTful API
+<br />
+
+### 3.测试已配置的类 RESTful 简单接口
+### 3.Test configured RESTful-like API
 
 启动项目后用 APIAuto/Postman 等 HTTP 接口测试工具发起请求 <br />
+After run project and the server has started, you can use HTTP tools like APIAuto/Postman to send request <br />
 
 POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字符串
 ```js
@@ -161,39 +183,41 @@ POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字
 ```
 
 例如 <br />
+Eg <br />
 
-POST http://localhost:8080/router/get/moments  // Document 表配置的 url 为 /get/moments
+POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置的 url
 ```js
 {
-    "format": true,
-    "Moment[].count": 3,
-    "Moment[].page": 1
+    "Moment[].page": 0,
+    "Moment[].count": 5,
+    "format": false
 }
 ```
 
 如果 parser.isNeedVerifyContent，则会经过 Request 表校验规则来校验， <br />
-
+If parser.isNeedVerifyContent, it will be validated with the rule in table Request <br />
 
 最后内部映射为： <br />
+Finally it will be mapped to： <br />
+
 ```js
 {
-    "format": true,
     "Moment[]": {
+        "page": 0,
+        "count": 5,
         "Moment": {
             "@order": "date-"
-        },
-        "page": 1,
-        "count": 3
-    }
+        }
+    },
+    "format": false
 }
 ```
 
-执行完 APIJSON 格式的请求后返回对应结果。
+执行完 APIJSON 格式的请求后返回对应结果 <br />
+Server will execute APIJSON request and response <br />
 
+![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
-
-注意：[APIAuto](https://github.com/TommyLemon/APIAuto) 不能自动获取并展示对应映射字段 showKey 的类型、长度、注释等文档，只能通过手写注释来实现 <br />
-Note: [APIAuto](https://github.com/TommyLemon/APIAuto) cannot automatically get and show the document for the showKey, you can add comment manually. 
 
 <br /><br />
 
