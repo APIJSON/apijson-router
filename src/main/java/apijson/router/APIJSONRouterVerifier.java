@@ -158,7 +158,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
 			Log.w(TAG, "initDocument isAll && size <= 0，没有可用的请求映射配置");
-			throw new NullPointerException("没有可用的请求映射配置");
+			return response;
 		}
 
 		Log.d(TAG, "initDocument < for DOCUMENT_MAP.size() = " + DOCUMENT_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
@@ -174,14 +174,15 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 
 			String version = item.getString("version");
 			if (StringUtil.isEmpty(version, true)) {
-				Log.e(TAG, "initDocument  for  StringUtil.isEmpty(version, true)，Document 表中的 version 不能为空！");
-				onServerError("服务器内部错误，Document 表中的 version 不能为空！", shutdownWhenServerError);
+				onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name")
+						+ " 对应 version 不能为空！", shutdownWhenServerError);
 			}
 
 			String url = item.getString("url");
 			int index = url == null ? -1 : url.indexOf("/");
 			if (index != 0) {
-				onServerError("服务器内部错误，Document 表中的 url 格式错误，必须以 / 开头，且只能有两个 key，格式为 /{method}/{tag} ！", shutdownWhenServerError);
+				onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+						+ " 对应 url 值错误，必须以 / 开头！", shutdownWhenServerError);
 			}
 
 			String requestStr = item.getString("request");
@@ -189,7 +190,8 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 			String apijson = item.getString("apijson");
 			if (StringUtil.isEmpty(apijson)) {
 				if (StringUtil.isBranchUrl(url) == false) {
-					onServerError("服务器内部错误，Document 表中的 url 值 " + url + " 错误！只允许合法的 URL 格式！", shutdownWhenServerError);			
+					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+							+ " 对应 url 值错误！只允许合法的 URL 格式！", shutdownWhenServerError);			
 				}
 			}
 			else {
@@ -198,7 +200,8 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 						JSON.parseObject(requestStr);
 					}
 					catch (Exception e) {
-						onServerError("服务器内部错误，Document 表中的 request 值 " + requestStr + " 错误！只允许合法的 JSONObject 格式！" + e.getMessage(), shutdownWhenServerError);			
+						onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+								+ " 对应 request 值 " + requestStr + " 错误！只允许合法的 JSONObject 格式！" + e.getMessage(), shutdownWhenServerError);			
 					}
 				}
 
@@ -206,23 +209,25 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 					JSON.parseObject(apijson);
 				}
 				catch (Exception e) {
-					onServerError("服务器内部错误，Document 表中的 apijson 值 " + apijson + " 错误！只允许合法的 JSONObject 格式！" + e.getMessage(), shutdownWhenServerError);			
+					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+							+ " 对应 apijson 值 " + apijson + " 错误！只允许合法的 JSONObject 格式！" + e.getMessage(), shutdownWhenServerError);			
 				}
 
-
-				url = url.substring(1);
-				index = url.indexOf("/");
-
+				index = url.lastIndexOf("/");
 				String method = index < 0 ? null : url.substring(0, index);
+				String tag = index < 0 ? null : url.substring(index + 1);
+
+				index = method == null ? -1 : method.lastIndexOf("/");
+				method = index < 0 ? method : method.substring(index + 1);
+				
 				if (METHODS.contains(method) == false) {
-					onServerError("服务器内部错误，Document 表中的 url 路径 /{method}/{tag} 中 method 值 " + method
-							+ " 错误！apijson 字段不为空时只允许 " + METHODS + " 中的一个！", shutdownWhenServerError);
+					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+							+ " 对应路径 /{method}/{tag} 中 method 值 " + method + " 错误！apijson 字段不为空时只允许 " + METHODS + " 中的一个！", shutdownWhenServerError);
 				}
 
-				String tag = url.substring(index + 1);
 				if (StringUtil.isName(tag) == false) {
-					onServerError("服务器内部错误，Document 表中的 url 路径 /{method}/{tag} 中 tag 值 " + tag
-							+ " 错误！apijson 字段不为空时只允许变量命名格式！", shutdownWhenServerError);			
+					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+							+ " 对应路径 /{method}/{tag} 中 tag 值 " + tag + " 错误！apijson 字段不为空时只允许变量命名格式！", shutdownWhenServerError);			
 				}
 
 				String cacheKey = getCacheKeyForRequest(method, tag);
