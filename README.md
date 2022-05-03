@@ -2,6 +2,8 @@
 腾讯 [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+ 的路由插件，对外暴露类 RESTful 简单接口，内部转成 APIJSON 格式请求来执行。<br />
 A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.0.5+, expose RESTful-like HTTP API, transfer to APIJSON request and execute.
 
+![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
+
 ## 添加依赖
 ## Add Dependency
 
@@ -89,32 +91,34 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 
 name: 查询动态列表
 
-url: /get/moments  // 必须以 APIJSON 的万能通用 API 之一的路由开头，例如 /get/, /post/ 等
+url: /router/get/momentList  // 最后两个 key 必须以 APIJSON 的万能通用 API 之一的路由开头，例如 /get/, /post/ 等
 
 request:
 ```js
 {
-    "format": true,  // 替换以下 "format": false
-    "Moment[].count": 3,  // 以 . 分割路径中的 key，替换以下  "Moment[]": { "count": 3 }
-    "Moment[].page": 1  // 以 . 分割路径中的 key，替换以下  "Moment[]": { "page": 1 }
+    "Moment[].page": 0,  // 以 . 分割路径中的 key，映射以下  "Moment[]": { "page": 0 }
+    "Moment[].count": 10,  // 以 . 分割路径中的 key，映射以下  "Moment[]": { "count": 10 }
+    "format": false  // 映射以下 "format": false
 }
 ```
 
 apijson:
 ```js
 {
-    "foramt": false,
     "Moment[]": {
-        "Moment": {
-            "@order": "date-"
-        },
         "page": 0,
-        "count": 5
-    }
+        "count": 10,
+        "Moment": {
+            "@column": "id,userId,date"
+        }
+    },
+    "format": false
 }
 ```
 
-其它字段可不填，用默认值。
+其它字段可不填，用默认值
+
+![image](https://user-images.githubusercontent.com/5738175/166565083-1db03cde-8b59-4048-af6d-78d9efb78f7c.png)
 
 <br />
 
@@ -132,19 +136,21 @@ tag: moments
 structure:
 ```js
 {
-    "MUST": "foramt,Moment[].count,Moment[].page",
+    "MUST": "Moment[].page",  // 必传 Moment[].page
+    "REFUSE": "!Moment[].count,!format,!",  // 不禁传 Moment[].count 和 format，禁传 MUST 之外的其它所有 key
     "TYPE": {
-        "foramt": "BOOLEAN",
-        "Moment[].page": "NUMBER",
-        "Moment[].count": "NUMBER"
-    },
-    "REFUSE": "!"
+        "format": "BOOLEAN",  // format 类型必须是布尔 Boolean
+        "Moment[].page": "NUMBER",  // Moment[].page 类型必须是整数 Integer
+        "Moment[].count": "NUMBER"  // Moment[].count 类型必须是整数 Integer
+    }
 }
 ```
 
+![image](https://user-images.githubusercontent.com/5738175/166563592-e8d3f09f-471a-4ae1-bee9-de78ec16fefe.png)
+
 <br />
 
-步骤 1, 2 都可在 APIAuto 参数注入面板点击 **+** 添加按钮，再点击弹窗内 **发布简单接口** 按钮来自动完成
+#### 步骤 1, 2 都可在 APIAuto 参数注入面板点击 \[+ 添加] 按钮，再点击弹窗内 \[发布简单接口] 按钮来自动完成
 
 ![image](https://user-images.githubusercontent.com/5738175/166562199-4d96dd16-cf25-4bd4-b574-94a3c5f32685.png)
 
@@ -166,12 +172,12 @@ POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字
 
 例如 <br />
 
-POST http://localhost:8080/router/get/moments  // Document 表配置的 url 为 /get/moments
+POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置的 url
 ```js
 {
-    "format": true,
+    "Moment[].page": 1,
     "Moment[].count": 3,
-    "Moment[].page": 1
+    "format": true
 }
 ```
 
@@ -181,14 +187,14 @@ POST http://localhost:8080/router/get/moments  // Document 表配置的 url 为 
 最后内部映射为： <br />
 ```js
 {
-    "format": true,
     "Moment[]": {
+        "page": 1,
+        "count": 3,
         "Moment": {
             "@order": "date-"
-        },
-        "page": 1,
-        "count": 3
-    }
+        }
+    },
+    "format": true
 }
 ```
 
