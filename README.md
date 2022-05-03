@@ -190,7 +190,7 @@ POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置�
 {
     "Moment[].page": 1,
     "Moment[].count": 3,
-    "format": true
+    "format": false
 }
 ```
 
@@ -209,7 +209,7 @@ Finally it will be mapped to： <br />
             "@order": "date-"
         }
     },
-    "format": true
+    "format": false
 }
 ```
 
