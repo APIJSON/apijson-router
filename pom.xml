@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>APIJSONRouter</name>
-	<description>APIJSON router for mapping RESTful API to APIJSON API</description>
+	<description>APIJSON router for mapping RESTful-like API to APIJSON API</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,16 +31,16 @@
 		</dependency>
 		
 		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>5.0.0</version>
+			<version>5.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.APIJSON</groupId>
 			<artifactId>apijson-framework</artifactId>
-			<version>5.0.0</version>
-		</dependency> -->
+			<version>5.1.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

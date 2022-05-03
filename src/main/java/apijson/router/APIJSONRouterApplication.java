@@ -19,7 +19,7 @@ import apijson.framework.APIJSONApplication;
 import apijson.framework.APIJSONCreator;
 
 
-/**启动入口 Application
+/**启动入口 Application 基类
  * 右键这个类 > Run As > Java Application
  * @author Lemon
  */
