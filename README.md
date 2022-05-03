@@ -87,7 +87,7 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 ## Usage
 
 #### 以下步骤 1, 2 可改为直接在 APIAuto 参数注入面板点击 \[+ 添加] 按钮，再点击弹窗内 \[发布简单接口] 按钮来自动完成
-#### Instead of step 1 and 2, you can use APIAuto for complete them automatically: Click \[+ Add], then Click \[Release simple API]
+#### Instead of step 1 and 2, you can use APIAuto to complete them automatically: Click \[+ Add], then Click \[Release simple API]
 
 ![image](https://user-images.githubusercontent.com/5738175/166562199-4d96dd16-cf25-4bd4-b574-94a3c5f32685.png)
 
