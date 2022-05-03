@@ -214,7 +214,7 @@ Finally it will be mapped to： <br />
 ```
 
 执行完 APIJSON 格式的请求后返回对应结果 <br />
-Server will execute and response <br />
+Server will execute APIJSON request and response <br />
 
 ![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
