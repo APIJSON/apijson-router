@@ -5,7 +5,7 @@
 
 	<groupId>apijson.router</groupId>
 	<artifactId>apijson-router</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.2</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONRouter</name>
@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>com.github.APIJSON</groupId>
 			<artifactId>apijson-framework</artifactId>
-			<version>5.1.0</version>
+			<version>5.1.1</version>
 		</dependency>
 	</dependencies>
 
