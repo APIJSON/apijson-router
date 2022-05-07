@@ -1,6 +1,9 @@
 # apijson-router  [![](https://jitpack.io/v/APIJSON/apijson-router.svg)](https://jitpack.io/#APIJSON/apijson-router)
 腾讯 [APIJSON](https://github.com/Tencent/APIJSON) 5.1.0+ 的路由插件，对外暴露类 RESTful 简单接口，内部转成 APIJSON 格式请求来执行。<br />
-A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.1.0+, expose RESTful-like HTTP API, map to APIJSON request and execute.
+A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.1.0+, expose RESTful-like HTTP API, map to APIJSON request and execute.<br />
+
+适合在公司外的公网可控地暴露 HTTP 接口，以及方便接入 ZooKeeper/Apollo/Nacos/SpringSecurity/Shiro/Zuul/Sentinel/Hystrix 等各种基于 URL 路由的 配置、鉴权、监控、限流、熔断 等网关/框架/组件。<br />
+HTTP APIs can be exposed to public network and be under control, and can easily integrate Configuration/Authentication/Monitoring/Limitation/Isolatation projects(gateway, framework, component) based on URL routs like SpringSecurity/Shiro/Zuul/Hystrix/ZooKeeper/Apollo/Nacos/Sentinel.
 
 ![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
