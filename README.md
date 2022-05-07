@@ -21,6 +21,9 @@ HTTP APIs can be exposed to public network and be under control, and can easily 
 		</repository>
 	</repositories>
 ```
+
+![image](https://user-images.githubusercontent.com/5738175/167263399-339dad4f-2884-461e-9781-f2de6d100340.png)
+
 <br />
 
 #### 2. 在 pom.xml 中添加 apijson-router 依赖
@@ -33,6 +36,12 @@ HTTP APIs can be exposed to public network and be under control, and can easily 
 	</dependency>
 ```
 
+![image](https://user-images.githubusercontent.com/5738175/167263390-f3cc8fed-9fd5-4ee1-b8d1-e2d1a695b16c.png)
+
+<br />
+
+https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONBoot-MultiDataSource/pom.xml
+
 <br />
 <br />
 
@@ -42,7 +51,6 @@ HTTP APIs can be exposed to public network and be under control, and can easily 
 ```gradle
 	allprojects {
 		repositories {
-			...
 			maven { url 'https://jitpack.io' }
 		}
 	}
@@ -65,16 +73,41 @@ HTTP APIs can be exposed to public network and be under control, and can easily 
 
 #### 1.新增一个 @RestController class DemoController extends APIJSONRouterController
 #### 1.Add a @RestController class DemoController extends APIJSONRouterController
+```java
+@RestController
+@RequestMapping("")
+public class DemoController extends APIJSONRouterController<Long> { 
+}
+```
+![image](https://user-images.githubusercontent.com/5738175/167263296-3bfd8782-c163-4461-bbed-f264be529e76.png)
 
 <br />
 
 #### 2.在 DemoController 重写 router 方法，加上注解 @PostMapping("router/{method}/{tag}")
 #### 2.Override router in DemoController, and add @PostMapping("router/{method}/{tag}") for router method
+```java
+	@PostMapping("router/{method}/{tag}")
+	@Override
+	public String router(@PathVariable String method, @PathVariable String tag, @RequestParam Map<String, String> params, @RequestBody String request, HttpSession session) {
+		return super.router(method, tag, params, request, session);
+	}
+```
+
+![image](https://user-images.githubusercontent.com/5738175/167263339-7c7cce6e-25bf-47b1-86a3-fc2950b8938d.png)
 
 <br />
 
 #### 3.在 DemoApplication.main 方法内，APIJSONAppication.init 后调用 APIJSONRouterApplication.init
 #### 3.In DemoApplication.main, call APIJSONRouterApplication.init after APIJSONAppication.init
+```java
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(DemoApplication.class, args);
+		APIJSONApplication.init();
+		APIJSONRouterApplication.init();
+	}
+```
+
+![image](https://user-images.githubusercontent.com/5738175/167263261-25fc5a02-7980-443f-94d9-76d2b488ce61.png)
 
 <br />
 
@@ -100,7 +133,7 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 ### 1.Add mapping rule in table Document
 
 例如 <br />
-Eg <br />
+E.g. <br />
 
 name: 查询动态列表
 
@@ -146,7 +179,7 @@ This step can be ignored if validation is not needed. <br />
 The same as common APIJSON requests, but won't wrap structure with tag to "Table": structure <br />
 
 例如 <br />
-Eg <br />
+E.g. <br />
 
 method: GET
 
@@ -186,7 +219,7 @@ POST {base_url}/router/get/{tag}  // tag 可为任意符合变量名格式的字
 ```
 
 例如 <br />
-Eg <br />
+E.g. <br />
 
 POST http://localhost:8080/router/get/momentList  // 对应 Document 表配置的 url
 ```js
