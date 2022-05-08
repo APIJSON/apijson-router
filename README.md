@@ -3,7 +3,7 @@
 A router plugin for Tencent [APIJSON](https://github.com/Tencent/APIJSON) 5.1.0+, expose undercontrolled RESTful-like HTTP API, map to APIJSON request and execute.<br />
 
 适合在公司外的公网可控地暴露 HTTP 接口，以及方便接入 ZooKeeper, Zuul, Apollo, Nacos, SpringSecurity, Shiro, Sentinel, Hystrix 等各种使用 URL 路由的 配置、鉴权、监控、限流、熔断 等网关/框架/组件。<br />
-HTTP APIs can be exposed to public network and be under control, and can easily integrate Configuration/Authentication/Monitoring/Limitation/Isolatation projects(gateway, framework, component) using URL routs like ZooKeeper, Zuul, Apollo, Nacos, SpringSecurity, Shiro, Sentinel, Hystrix.
+HTTP APIs can be exposed to public network and be under control, and can easily integrate Configuration/Authentication/Monitoring/Limitation/Isolatation projects(gateway, framework, component) using URL routes like ZooKeeper, Zuul, Apollo, Nacos, SpringSecurity, Shiro, Sentinel, Hystrix.
 
 ![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
@@ -123,7 +123,7 @@ See document in [APIJSONRouterController](/src/main/java/apijson/router/APIJSONR
 ## Usage
 
 #### 以下步骤 1, 2 可改为直接在 APIAuto 参数注入面板点击 \[+ 添加] 按钮，再点击弹窗内 \[发布简单接口] 按钮来自动完成
-#### Instead of step 1 and 2, you can use APIAuto to complete them automatically: Click \[+ Add], then Click \[Release simple API]
+#### Instead of step 1 and 2, you can use APIAuto to complete them automatically: click \[+ Add], then click \[Release simple API]
 
 ![image](https://user-images.githubusercontent.com/5738175/166562199-4d96dd16-cf25-4bd4-b574-94a3c5f32685.png)
 
