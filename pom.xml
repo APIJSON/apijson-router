@@ -5,7 +5,7 @@
 
 	<groupId>apijson.router</groupId>
 	<artifactId>apijson-router</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.5</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONRouter</name>
@@ -23,23 +23,23 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>4.0.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.2.79</version>
+			<version>1.2.83</version>
 		</dependency>
-		
-		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
+
+    <!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
 		<dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>5.1.0</version>
+			<version>5.1.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.APIJSON</groupId>
 			<artifactId>apijson-framework</artifactId>
-			<version>5.1.1</version>
+			<version>5.1.5</version>
 		</dependency>
 	</dependencies>
 
