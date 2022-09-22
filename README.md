@@ -255,6 +255,10 @@ Server will execute APIJSON request and response <br />
 ![image](https://user-images.githubusercontent.com/5738175/166560119-c598d3c6-48b6-4f47-85fe-8f36ca332e99.png)
 
 
+<br />
+有问题可以去 Tencent/APIJSON 提 issue <br />
+https://github.com/Tencent/APIJSON/issues/36
+
 <br /><br />
 
 #### 点右上角 ⭐Star 支持一下，谢谢 ^_^
