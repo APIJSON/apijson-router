@@ -14,19 +14,13 @@ limitations under the License.*/
 
 package apijson.router;
 
+import static apijson.JSON.*;
+import static apijson.JSONRequest.KEY_COUNT;
 import static apijson.framework.APIJSONConstant.DOCUMENT_;
 import static apijson.framework.APIJSONConstant.METHODS;
 
 import java.rmi.ServerException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import java.util.*;
 
 import apijson.JSON;
 import apijson.JSONResponse;
@@ -42,12 +36,13 @@ import apijson.orm.JSONRequest;
 /**路由请求映射验证器
  * @author Lemon
  */
-public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> {
+public class APIJSONRouterVerifier<T, M extends Map<String, Object>, L extends List<Object>>
+		extends APIJSONVerifier<T, M, L> {
 	public static final String TAG = "APIJSONRouterVerifier";
 
 
 	// method-tag, <version, Document>
-	public static Map<String, SortedMap<Integer, JSONObject>> DOCUMENT_MAP;
+	public static Map<String, SortedMap<Integer, Map<String, Object>>> DOCUMENT_MAP;
 	static {
 		DOCUMENT_MAP = new HashMap<>();
 	}
@@ -56,7 +51,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init() throws ServerException {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M init() throws ServerException {
 		return init(false);
 	}
 	/**初始化，加载所有请求映射配置和请求校验配置
@@ -64,7 +59,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError) throws ServerException {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(boolean shutdownWhenServerError) throws ServerException {
 		return init(shutdownWhenServerError, null);
 	}
 	/**初始化，加载所有请求映射配置和请求校验配置
@@ -72,7 +67,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static <T extends Object> JSONObject init(APIJSONCreator<T> creator) throws ServerException {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(APIJSONCreator<T, M, L> creator) throws ServerException {
 		return init(false, creator);
 	}
 	/**初始化，加载所有请求映射配置和请求校验配置
@@ -81,8 +76,9 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static <T extends Object> JSONObject init(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
-		JSONObject result = APIJSONVerifier.init(shutdownWhenServerError, creator);
+	public static<T, M extends Map<String, Object>, L extends List<Object>> M init(boolean shutdownWhenServerError
+			, APIJSONCreator<T, M, L> creator) throws ServerException {
+		M result = APIJSONVerifier.init(shutdownWhenServerError, creator);
 		result.put(DOCUMENT_, initDocument(shutdownWhenServerError, creator));
 		return result;
 	}
@@ -92,7 +88,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initDocument() throws ServerException {
+	public static <M extends Map<String, Object>> M initDocument() throws ServerException {
 		return initDocument(false);
 	}
 	/**初始化，加载所有请求校验配置
@@ -100,7 +96,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initDocument(boolean shutdownWhenServerError) throws ServerException {
+	public static <M extends Map<String, Object>> M initDocument(boolean shutdownWhenServerError) throws ServerException {
 		return initDocument(shutdownWhenServerError, null);
 	}
 	/**初始化，加载所有请求校验配置
@@ -108,7 +104,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static <T extends Object> JSONObject initDocument(APIJSONCreator<T> creator) throws ServerException {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(APIJSONCreator<T, M, L> creator) throws ServerException {
 		return initDocument(false, creator);
 	}
 	/**初始化，加载所有请求校验配置
@@ -117,7 +113,7 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static <T extends Object> JSONObject initDocument(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator) throws ServerException {
 		return initDocument(shutdownWhenServerError, creator, null);
 	}
 	/**初始化，加载所有请求校验配置
@@ -128,33 +124,33 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 	 * @throws ServerException
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Object> JSONObject initDocument(boolean shutdownWhenServerError, APIJSONCreator<T> creator, JSONObject table) throws ServerException {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
-			creator = (APIJSONCreator<T>) APIJSON_CREATOR;
+			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
 
 		boolean isAll = table == null || table.isEmpty();
-		JSONObject document = isAll ? new JSONRequest().puts("apijson{}", "length(apijson)>0").setOrder("version-,id+") : table;
+		M document = isAll ? JSON.createJSONObject(new JSONRequest().puts("apijson{}", "length(apijson)>0").setOrder("version-,id+")) : table;
 		if (Log.DEBUG == false) {
 			document.put(APIJSONConstant.KEY_DEBUG, 0);
 		}
 
-		JSONRequest requestItem = new JSONRequest();
-		requestItem.put(DOCUMENT_, document );  // 方便查找
+		M requestItem = JSON.createJSONObject();
+		requestItem.put(DOCUMENT_, document);  // 方便查找
+		requestItem.put(KEY_COUNT, 0);
 
-		JSONRequest request = new JSONRequest();
-		request.putAll(requestItem.toArray(0, 0, DOCUMENT_));
+		M request = JSON.createJSONObject();
+		request.put(DOCUMENT_ + "[]", requestItem);
 
-
-		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
+		M response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
-			Log.e(TAG, "\n\n\n\n\n !!!! 查询请求映射配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
+			Log.e(TAG, "\n\n\n\n\n !!!! 查询请求映射配置异常 !!!\n" + getString(response, JSONResponse.KEY_MSG) + "\n\n\n\n\n");
 			onServerError("查询请求映射配置异常 !", shutdownWhenServerError);
 		}
 
-		JSONArray list = response.getJSONArray(DOCUMENT_ + "[]");
+		L list = getJSONArray(response, DOCUMENT_ + "[]");
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
 			Log.w(TAG, "initDocument isAll && size <= 0，没有可用的请求映射配置");
@@ -164,33 +160,33 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 		Log.d(TAG, "initDocument < for DOCUMENT_MAP.size() = " + DOCUMENT_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
 
 
-		Map<String, SortedMap<Integer, JSONObject>> newMap = new LinkedHashMap<>();
+		Map<String, SortedMap<Integer, Map<String, Object>>> newMap = new LinkedHashMap<>();
 		
 		for (int i = 0; i < size; i++) {
-			JSONObject item = list.getJSONObject(i);
+			M item = getJSONObject(list, i);
 			if (item == null) {
 				continue;
 			}
 
-			String version = item.getString("version");
+			String version = getString(item, "version");
 			if (StringUtil.isEmpty(version, true)) {
-				onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name")
+				onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name")
 						+ " 对应 version 不能为空！", shutdownWhenServerError);
 			}
 
-			String url = item.getString("url");
+			String url = getString(item, "url");
 			int index = url == null ? -1 : url.indexOf("/");
 			if (index != 0) {
-				onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+				onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
 						+ " 对应 url 值错误，必须以 / 开头！", shutdownWhenServerError);
 			}
 
-			String requestStr = item.getString("request");
+			String requestStr = getString(item, "request");
 
-			String apijson = item.getString("apijson");
+			String apijson = getString(item, "apijson");
 			if (StringUtil.isEmpty(apijson)) {
 				if (StringUtil.isBranchUrl(url) == false) {
-					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
 							+ " 对应 url 值错误！只允许合法的 URL 格式！", shutdownWhenServerError);			
 				}
 			}
@@ -200,8 +196,8 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 						JSON.parseObject(requestStr);
 					}
 					catch (Exception e) {
-						onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
-								+ " 对应 request 值 " + requestStr + " 错误！只允许合法的 JSONObject 格式！" + e.getMessage(), shutdownWhenServerError);			
+						onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+								+ " 对应 request 值 " + requestStr + " 错误！只允许合法的 M 格式！" + e.getMessage(), shutdownWhenServerError);			
 					}
 				}
 
@@ -209,8 +205,8 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 					JSON.parseObject(apijson);
 				}
 				catch (Exception e) {
-					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
-							+ " 对应 apijson 值 " + apijson + " 错误！只允许合法的 JSONObject 格式！" + e.getMessage(), shutdownWhenServerError);			
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+							+ " 对应 apijson 值 " + apijson + " 错误！只允许合法的 M 格式！" + e.getMessage(), shutdownWhenServerError);			
 				}
 
 				index = url.lastIndexOf("/");
@@ -221,17 +217,17 @@ public class APIJSONRouterVerifier<T extends Object> extends APIJSONVerifier<T> 
 				method = index < 0 ? method : method.substring(index + 1);
 				
 				if (METHODS.contains(method) == false) {
-					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
 							+ " 对应路径 /{method}/{tag} 中 method 值 " + method + " 错误！apijson 字段不为空时只允许 " + METHODS + " 中的一个！", shutdownWhenServerError);
 				}
 
 				if (StringUtil.isName(tag) == false) {
-					onServerError("服务器内部错误，Document 表中的 id=" + item.getString("id") + ", name=" + item.getString("name") + ", url=" + url
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
 							+ " 对应路径 /{method}/{tag} 中 tag 值 " + tag + " 错误！apijson 字段不为空时只允许变量命名格式！", shutdownWhenServerError);			
 				}
 
 				String cacheKey = getCacheKeyForRequest(method, tag);
-				SortedMap<Integer, JSONObject> versionedMap = newMap.get(cacheKey);
+				SortedMap<Integer, Map<String, Object>> versionedMap = newMap.get(cacheKey);
 				if (versionedMap == null) {
 					versionedMap = new TreeMap<>(new Comparator<Integer>() {
 

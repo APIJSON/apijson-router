@@ -35,23 +35,17 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.83</version>
-		</dependency>
-
 		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
-		<dependency>
-			<groupId>com.github.Tencent</groupId>
-			<artifactId>APIJSON</artifactId>
-			<version>7.5.5</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.APIJSON</groupId>
-			<artifactId>apijson-framework</artifactId>
-			<version>7.1.7</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.github.Tencent</groupId>-->
+<!--			<artifactId>APIJSON</artifactId>-->
+<!--			<version>8.0.0.0.0</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>com.github.APIJSON</groupId>-->
+<!--			<artifactId>apijson-framework</artifactId>-->
+<!--			<version>7.2.0.0</version>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<build>

@@ -23,12 +23,13 @@ import apijson.orm.AbstractVerifier;
 import apijson.orm.Parser;
 import apijson.orm.SQLConfig;
 import apijson.orm.Verifier;
-import com.alibaba.fastjson.JSONObject;
 import javax.servlet.http.HttpSession;
 
 import java.util.*;
 import java.util.Map.Entry;
 
+import static apijson.JSON.getJSONObject;
+import static apijson.JSON.getString;
 import static apijson.RequestMethod.GET;
 import static apijson.framework.javax.APIJSONConstant.METHODS;
 
@@ -36,7 +37,8 @@ import static apijson.framework.javax.APIJSONConstant.METHODS;
 /**APIJSON router controller，建议在子项目被 @RestController 注解的类继承它或通过它的实例调用相关方法
  * @author Lemon
  */
-public class APIJSONRouterController<T extends Object> extends APIJSONController<T> {
+public class APIJSONRouterController<T, M extends Map<String, Object>, L extends List<Object>>
+		extends APIJSONController<T, M, L> {
 	public static final String TAG = "APIJSONRouterController";
 
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -63,25 +65,46 @@ public class APIJSONRouterController<T extends Object> extends APIJSONController
 	 * @return
 	 */
 	public String router(String method, String tag, Map<String, String> params, String request, HttpSession session, boolean compatCommonAPI) {
-		if (METHODS.contains(method) == false) {
-			return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 " + method
-					+ " 错误！只允许 " + METHODS + " 中的一个！")).toJSONString();
+		RequestMethod requestMethod = null;
+		try {
+			 requestMethod = RequestMethod.valueOf(method.toUpperCase());
+		} catch (Throwable e) {
+			// 下方 METHODS.contains(method) 会抛异常
 		}
-		
+		Parser<T, M, L> parser = newParser(session, requestMethod);
+
+		if (METHODS.contains(method) == false) {
+			return JSON.toJSONString(
+					parser.newErrorResult(
+							new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 "
+									+ method + " 错误！只允许 " + METHODS + " 中的一个！"
+							)
+					)
+			);
+		}
+
 		String t = compatCommonAPI && tag != null && tag.endsWith("[]") ? tag.substring(0, tag.length() - 2) : tag;
 		if (StringUtil.isName(t) == false) {
-			return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /" + method + "/{tag} 的 tag 中 " + t
-					+ " 错误！tag 不能为空，且只允许变量命名格式！")).toJSONString();
+			return JSON.toJSONString(
+					parser.newErrorResult(
+							new IllegalArgumentException("URL 路径 /" + method + "/{tag} 的 tag 中 "
+									+ t + " 错误！tag 不能为空，且只允许变量命名格式！"
+							)
+					)
+			);
 		}
 
 		String versionStr = params == null ? null : params.remove(APIJSONConstant.VERSION);
 		Integer version;
 		try {
 			version = StringUtil.isEmpty(versionStr, false) ? null : Integer.valueOf(versionStr);
-		} 
+		}
 		catch (Exception e) {
-			return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /" + method
-					+ "/" + tag + "?version=value 中 value 值 " + versionStr + " 错误！必须符合整数格式！")).toJSONString();
+			return JSON.toJSONString(
+					parser.newErrorResult(new IllegalArgumentException("URL 路径 /" + method + "/"
+							+ tag + "?version=value 中 value 值 " + versionStr + " 错误！必须符合整数格式！")
+					)
+			);
 		}
 
 		if (version == null) {
@@ -89,18 +112,18 @@ public class APIJSONRouterController<T extends Object> extends APIJSONController
 		}
 
 		try {
-			// 从 Document 查这样的接口		
+			// 从 Document 查这样的接口
 			String cacheKey = AbstractVerifier.getCacheKeyForRequest(method, tag);
-			SortedMap<Integer, JSONObject> versionedMap = APIJSONRouterVerifier.DOCUMENT_MAP.get(cacheKey);
+			SortedMap<Integer, Map<String, Object>> versionedMap = APIJSONRouterVerifier.DOCUMENT_MAP.get(cacheKey);
 
-			JSONObject result = versionedMap == null ? null : versionedMap.get(version);
+			Map<String, Object> result = versionedMap == null ? null : versionedMap.get(version);
 			if (result == null) {  // version <= 0 时使用最新，version > 0 时使用 > version 的最接近版本（最小版本）
-				Set<Entry<Integer, JSONObject>> set = versionedMap == null ? null : versionedMap.entrySet();
+				Set<Entry<Integer, Map<String, Object>>> set = versionedMap == null ? null : versionedMap.entrySet();
 
 				if (set != null && set.isEmpty() == false) {
-					Entry<Integer, JSONObject> maxEntry = null;
+					Entry<Integer, Map<String, Object>> maxEntry = null;
 
-					for (Entry<Integer, JSONObject> entry : set) {
+					for (Entry<Integer, Map<String, Object>> entry : set) {
 						if (entry == null || entry.getKey() == null || entry.getValue() == null) {
 							continue;
 						}
@@ -133,11 +156,11 @@ public class APIJSONRouterController<T extends Object> extends APIJSONController
 			}
 
 			@SuppressWarnings("unchecked")
-			APIJSONCreator<T> creator = (APIJSONCreator<T>) APIJSONParser.APIJSON_CREATOR;
+			APIJSONCreator<T, M, L> creator = (APIJSONCreator<T, M, L>) APIJSONParser.APIJSON_CREATOR;
 			if (result == null && Log.DEBUG && APIJSONRouterVerifier.DOCUMENT_MAP.isEmpty()) {
 
 				//获取指定的JSON结构 <<<<<<<<<<<<<<
-				SQLConfig config = creator.createSQLConfig().setMethod(GET).setTable(APIJSONConstant.DOCUMENT_);
+				SQLConfig<T, M, L> config = creator.createSQLConfig().setMethod(GET).setTable(APIJSONConstant.DOCUMENT_);
 				config.setPrepared(false);
 				config.setColumn(Arrays.asList("request,apijson"));
 
@@ -160,7 +183,7 @@ public class APIJSONRouterController<T extends Object> extends APIJSONController
 				//			DOCUMENT_MAP.put(cacheKey, versionedMap);
 			}
 
-			String apijson = result == null ? null : result.getString("apijson");
+			String apijson = result == null ? null : getString(result, "apijson");
 			if (StringUtil.isEmpty(apijson, true)) {  //
 				if (compatCommonAPI) {
 					return crudByTag(method, tag, params, request, session);
@@ -170,37 +193,31 @@ public class APIJSONRouterController<T extends Object> extends APIJSONController
 						+ "/" + tag + (versionStr == null ? "" : "?version=" + versionStr) + " 对应的接口不存在！");
 			}
 
-			JSONObject rawReq = JSON.parseObject(request);
+			M rawReq = JSON.parseObject(request);
 			if (rawReq == null) {
-				rawReq = new JSONObject(true);
+				rawReq = JSON.createJSONObject();
 			}
 			if (params != null && params.isEmpty() == false) {
 				rawReq.putAll(params);
 			}
 
-			RequestMethod requestMethod = RequestMethod.valueOf(method.toUpperCase());
-			Parser<T> parser = newParser(session, requestMethod);
-
 			if (parser.isNeedVerifyContent()) {
-				Verifier<T> verifier = creator.createVerifier();
+				Verifier<T, M, L> verifier = creator.createVerifier();
 
 				//获取指定的JSON结构 <<<<<<<<<<<<
-				JSONObject object;
-				object = parser.getStructure("Request", method.toUpperCase(), tag, version);
-				if (object == null) { //empty表示随意操作  || object.isEmpty()) {
+				Map<String, Object> target = parser.getStructure("Request", method.toUpperCase(), tag, version);
+				if (target == null) { //empty表示随意操作  || object.isEmpty()) {
 					throw new UnsupportedOperationException("找不到 version: " + version + ", method: " + method.toUpperCase() + ", tag: " + tag + " 对应的 structure ！"
 							+ "非开放请求必须是后端 Request 表中校验规则允许的操作！如果需要则在 Request 表中新增配置！");
 				}
 
-				JSONObject target = object;
-
-				//JSONObject clone 浅拷贝没用，Structure.parse 会导致 structure 里面被清空，第二次从缓存里取到的就是 {}
-				verifier.verifyRequest(requestMethod, "", target, rawReq, 0, null, null, creator);
+				//M clone 浅拷贝没用，Structure.parse 会导致 structure 里面被清空，第二次从缓存里取到的就是 {}
+				verifier.verifyRequest(requestMethod, "", JSON.createJSONObject(target), rawReq, 0, null, null, creator);
 			}
 
-			JSONObject apijsonReq = JSON.parseObject(apijson);
+			M apijsonReq = JSON.parseObject(apijson);
 			if (apijsonReq == null) {
-				apijsonReq = new JSONObject(true);
+				apijsonReq = JSON.createJSONObject();
 			}
 
 			Set<Entry<String, Object>> rawSet = rawReq.entrySet();
@@ -214,11 +231,11 @@ public class APIJSONRouterController<T extends Object> extends APIJSONController
 					String[] pathKeys = key.split("\\.");
 					//逐层到达child的直接容器JSONObject parent
 					int last = pathKeys.length - 1;
-					JSONObject parent = apijsonReq;
+					M parent = apijsonReq;
 					for (int i = 0; i < last; i++) {//一步一步到达指定位置
-						JSONObject p = parent.getJSONObject(pathKeys[i]);
+						M p = getJSONObject(parent, pathKeys[i]);
 						if (p == null) {
-							p = new JSONObject(true);
+							p = JSON.createJSONObject();
 							parent.put(key, p);
 						}
 						parent = p;
@@ -233,7 +250,7 @@ public class APIJSONRouterController<T extends Object> extends APIJSONController
 			return parser.setNeedVerifyContent(false).parse(apijsonReq);
 		}
 		catch (Exception e) {
-			return APIJSONParser.newErrorResult(e).toJSONString();
+			return JSON.toJSONString(parser.newErrorResult(e));
 		}
 	}
 

@@ -18,6 +18,9 @@ import apijson.NotNull;
 import apijson.framework.APIJSONApplication;
 import apijson.framework.APIJSONCreator;
 
+import java.util.List;
+import java.util.Map;
+
 
 /**启动入口 Application 基类
  * 右键这个类 > Run As > Java Application
@@ -46,7 +49,8 @@ public class APIJSONRouterApplication extends APIJSONApplication {
 	 * @return 
 	 * @throws Exception
 	 */
-	public static <T extends Object> void init(@NotNull APIJSONCreator<T> creator) throws Exception {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> void init(
+			@NotNull APIJSONCreator<T, M, L> creator) throws Exception {
 		init(true, creator);
 	}
 	/**初始化，加载所有配置并校验
@@ -55,7 +59,8 @@ public class APIJSONRouterApplication extends APIJSONApplication {
 	 * @return 
 	 * @throws Exception
 	 */
-	public static <T extends Object> void init(boolean shutdownWhenServerError, @NotNull APIJSONCreator<T> creator) throws Exception {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> void init(boolean shutdownWhenServerError
+			, @NotNull APIJSONCreator<T, M, L> creator) throws Exception {
 		//	避免多个插件重复调用这句	APIJSONApplication.init(shutdownWhenServerError, creator);
 		System.out.println("\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<< APIJSON Router 开始启动 >>>>>>>>>>>>>>>>>>>>>>>>\n");
 

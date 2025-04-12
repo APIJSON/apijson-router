@@ -76,7 +76,7 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONB
 ```java
 @RestController
 @RequestMapping("")
-public class DemoController extends APIJSONRouterController<Long> { 
+public class DemoController extends APIJSONRouterController<Long, JSONObject, JSONArray> { 
 }
 ```
 ![image](https://user-images.githubusercontent.com/5738175/167263296-3bfd8782-c163-4461-bbed-f264be529e76.png)
